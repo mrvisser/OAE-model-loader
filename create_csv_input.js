@@ -166,13 +166,24 @@ fs.readFile('scripts/users/0.txt', 'utf8', function(err, data) {
 	
 	function createPotentialInvites(users) {
 		var potentialInvites = {};
+		var maxInvitesPerUser = 10;
+		var totalUsers = Object.keys(users).length;
+		
 		for (var sourceUserId in users) {
 		  potentialInvites[sourceUserId] = [];
-			for (var destUserId in users) {
+		  
+		  // do a "round-robin" search since we want to start at a random location
+		  var start = Math.floor(Math.random()*totalUsers);
+		  var end = (start == 0) ? totalUsers-1 : start-1; 
+		  var userIdKeys = Object.keys(users);
+
+		  var i;
+			for (i = start; i != end; i = (i+1)%totalUsers) {
+			  var destUserId = userIdKeys[i];
 				if (sourceUserId == destUserId)
 					continue;
-				if (potentialInvites[sourceUserId].length >= 10)
-				  continue;
+				if (potentialInvites[sourceUserId].length >= maxInvitesPerUser)
+				  break;
 				potentialInvites[sourceUserId].push(destUserId)
 			}
 		}
